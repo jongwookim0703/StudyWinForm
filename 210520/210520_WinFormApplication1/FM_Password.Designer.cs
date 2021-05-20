@@ -95,6 +95,7 @@ namespace _210520_WinFormApplication1
             this.btnChange.TabIndex = 6;
             this.btnChange.Text = "변경등록";
             this.btnChange.UseVisualStyleBackColor = true;
+            this.btnChange.Click += new System.EventHandler(this.btnChange_Click);
             // 
             // btnClose
             // 
@@ -104,12 +105,13 @@ namespace _210520_WinFormApplication1
             this.btnClose.TabIndex = 7;
             this.btnClose.Text = "닫기";
             this.btnClose.UseVisualStyleBackColor = true;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
             // FM_Password
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(701, 374);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnChange);
             this.Controls.Add(this.txtChangePW);
