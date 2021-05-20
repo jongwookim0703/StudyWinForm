@@ -29,5 +29,15 @@ namespace _210520_WinFormApplication1
             FmPAssword.ShowDialog();    //한 개창만 컨트롤할 수 있게 나옴
             // FmPAssword.Show();       //두 개창을 다 쓸 수 있음
         }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void FM_Login_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

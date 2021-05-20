@@ -88,8 +88,9 @@ namespace _210520_WinFormApplication1
             this.btnLogin.TabIndex = 5;
             this.btnLogin.Text = "로그인";
             this.btnLogin.UseVisualStyleBackColor = true;
+            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
             // 
-            // Form1
+            // FM_Login
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -100,8 +101,9 @@ namespace _210520_WinFormApplication1
             this.Controls.Add(this.btnPwChange);
             this.Controls.Add(this.txtID);
             this.Controls.Add(this.label1);
-            this.Name = "Form1";
+            this.Name = "FM_Login";
             this.Text = "Login";
+            this.Load += new System.EventHandler(this.FM_Login_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
