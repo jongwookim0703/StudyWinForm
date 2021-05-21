@@ -79,6 +79,8 @@ namespace _210520_WinFormApplication1
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(297, 27);
             this.txtPassword.TabIndex = 4;
+            this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
+            this.txtPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtPassword_KeyDown);
             // 
             // btnLogin
             // 

@@ -79,6 +79,7 @@ namespace _210520_WinFormApplication1
             this.txtUserID.Name = "txtUserID";
             this.txtUserID.Size = new System.Drawing.Size(277, 27);
             this.txtUserID.TabIndex = 4;
+            this.txtUserID.TextChanged += new System.EventHandler(this.txtUserID_TextChanged);
             // 
             // txtChangePW
             // 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace _210520_WinFormApplication1
+namespace Dev_Form2222
 {
     static class Program
     {
@@ -17,7 +17,7 @@ namespace _210520_WinFormApplication1
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FM_Main());
+            Application.Run(new MDI_TEST2222());
         }
     }
 }

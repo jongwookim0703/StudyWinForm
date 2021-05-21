@@ -93,5 +93,10 @@ namespace _210520_WinFormApplication1
 
             // 4. 변경여부 메세지 처리
         }
+
+        private void txtUserID_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
