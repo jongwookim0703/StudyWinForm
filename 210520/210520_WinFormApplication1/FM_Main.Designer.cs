@@ -33,6 +33,7 @@ namespace _210520_WinFormApplication1
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.M_SYSTEM = new System.Windows.Forms.ToolStripMenuItem();
             this.MDI_TEST = new System.Windows.Forms.ToolStripMenuItem();
+            this.MDI_TEST2 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.stbSearch = new System.Windows.Forms.ToolStripButton();
             this.stbInsert = new System.Windows.Forms.ToolStripButton();
@@ -46,7 +47,8 @@ namespace _210520_WinFormApplication1
             this.tssUserName = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssNowDate = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.MDI_TEST2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.myTabControl1 = new _210520_WinFormApplication1.MyTabControl();
+            this.FM_ITEM = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -67,7 +69,8 @@ namespace _210520_WinFormApplication1
             // 
             this.M_SYSTEM.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MDI_TEST,
-            this.MDI_TEST2});
+            this.MDI_TEST2,
+            this.FM_ITEM});
             this.M_SYSTEM.Name = "M_SYSTEM";
             this.M_SYSTEM.Size = new System.Drawing.Size(103, 24);
             this.M_SYSTEM.Text = "시스템 관리";
@@ -79,6 +82,12 @@ namespace _210520_WinFormApplication1
             this.MDI_TEST.Name = "MDI_TEST";
             this.MDI_TEST.Size = new System.Drawing.Size(228, 26);
             this.MDI_TEST.Text = "테스트 화면";
+            // 
+            // MDI_TEST2
+            // 
+            this.MDI_TEST2.Name = "MDI_TEST2";
+            this.MDI_TEST2.Size = new System.Drawing.Size(228, 26);
+            this.MDI_TEST2.Text = "toolStripMenuItem1";
             // 
             // toolStrip
             // 
@@ -210,17 +219,27 @@ namespace _210520_WinFormApplication1
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // MDI_TEST2
+            // myTabControl1
             // 
-            this.MDI_TEST2.Name = "MDI_TEST2";
-            this.MDI_TEST2.Size = new System.Drawing.Size(228, 26);
-            this.MDI_TEST2.Text = "toolStripMenuItem1";
+            this.myTabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.myTabControl1.Location = new System.Drawing.Point(0, 111);
+            this.myTabControl1.Name = "myTabControl1";
+            this.myTabControl1.SelectedIndex = 0;
+            this.myTabControl1.Size = new System.Drawing.Size(815, 315);
+            this.myTabControl1.TabIndex = 4;
+            // 
+            // FM_ITEM
+            // 
+            this.FM_ITEM.Name = "FM_ITEM";
+            this.FM_ITEM.Size = new System.Drawing.Size(32, 19);
+            this.FM_ITEM.Text = "toolStripMenuItem1";
             // 
             // FM_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(815, 452);
+            this.Controls.Add(this.myTabControl1);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
@@ -228,6 +247,7 @@ namespace _210520_WinFormApplication1
             this.MainMenuStrip = this.menuStrip;
             this.Name = "FM_Main";
             this.Text = "FM_Main";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.toolStrip.ResumeLayout(false);
@@ -258,5 +278,7 @@ namespace _210520_WinFormApplication1
         private System.Windows.Forms.ToolStripStatusLabel tssNowDate;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ToolStripMenuItem MDI_TEST2;
+        private MyTabControl myTabControl1;
+        private System.Windows.Forms.ToolStripMenuItem FM_ITEM;
     }
 }

@@ -30,6 +30,9 @@ namespace _210520_WinFormApplication1
             // M시스템에서 드롭다운을 눌렀을 때           new 이내용으로 실행해라
             this.M_SYSTEM.DropDownItemClicked +=
                 new System.Windows.Forms.ToolStripItemClickedEventHandler(this.M_SYSTEM_DropDownItemClicked);
+
+            // 버튼 닫기 이벤트 추가
+            this.stbClose.Click += new System.EventHandler(this.stbClose_Click);
         }
 
         private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -40,6 +43,13 @@ namespace _210520_WinFormApplication1
         private void stbExit_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+        private void stbClose_Click(object sender, EventArgs e)
+        {
+            // 열려있는 화면이 있는지 확인
+            if (myTabControl1.TabPages.Count == 0) return;
+            // 선택된 탭페이지를 닫는다
+            myTabControl1.SelectedTab.Dispose();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -64,11 +74,44 @@ namespace _210520_WinFormApplication1
             // 내가 메뉴를 클릭했을 때 내가 클릭한 메뉴이름이랑 똑같은 이름을 가진폼을 출력해라 어디서? Dev_Form에서
             Assembly assemb = Assembly.LoadFrom(Application.StartupPath + @"\" + "Dev_Form.dll");  // Dev_Form.DLL이라는 파일을 가져와라
             Type typeForm = assemb.GetType("Dev_Form." + e.ClickedItem.Name.ToString(), true);
-            Form MDI_TEST = (Form)Activator.CreateInstance(typeForm);
+            Form ShowForm = (Form)Activator.CreateInstance(typeForm);
 
-            MDI_TEST.MdiParent = this;
-            MDI_TEST.Show();
+            //// 해당되는 폼이 이미 오픈되어 있는지 확인 후 활성화 또는 신규오픈 한다
+            for (int i = 0; i < myTabControl1.TabPages.Count; i++)
+            {
+                if (myTabControl1.TabPages[i].Name == e.ClickedItem.Name.ToString())
+                {
+                    myTabControl1.SelectedTab = myTabControl1.TabPages[i];
+                    return;
+                }
+            }
 
+
+
+            //ShowForm.MdiParent = this;
+            //ShowForm.Show();
+            myTabControl1.AddForm(ShowForm);    // 탭페이지에 폼을 추가하여 오픈한다
+        }
+    }
+    // 도구상자에 나만의 사용자정의 탭컨트롤을 만든다
+    public partial class MDIForm : TabPage
+    {
+
+    }
+    public partial class MyTabControl : TabControl
+    {
+        public void AddForm(Form NewForm)
+        {
+            if (NewForm == null) return;       // 인자로 받은 폼이 없을경우 시행 중지
+            NewForm.TopLevel = false;          // 인자로 받은 폼이 최상위 개체가 아님을 선언
+            MDIForm page = new MDIForm();      // 탭 페이지 객체 생성
+            page.Controls.Clear();             // 페이지 초기화
+            page.Controls.Add(NewForm);        // 페이지에 폼 추가
+            page.Text = NewForm.Text;          // 폼에서 지정한 명칭으로 탭 페이지 설정
+            page.Name = NewForm.Name;          // 폼에서 설정한 이름으로 탭 페이지 설정
+            base.TabPages.Add(page);           // 탭 컨트롤에 페이지를 추가한다
+            NewForm.Show();                    // 인자로 받은 폼을 보여준다
+            base.SelectedTab = page;           // 현재 선택된 페이지를 호출한 폼의 페이지로 설정한다
         }
     }
 }
