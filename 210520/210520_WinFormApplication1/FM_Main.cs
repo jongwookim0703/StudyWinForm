@@ -18,8 +18,10 @@ namespace _210520_WinFormApplication1
         public FM_Main()
         {
             InitializeComponent();  // 무조건있어야됨
+            //로그인폼 호출
             FM_Login login = new FM_Login();
             login.ShowDialog();
+
             tssUserName.Text = login.Tag.ToString();  
             if (login.Tag.ToString() == "Fail")
             {

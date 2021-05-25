@@ -43,6 +43,11 @@ namespace Dev_Form
                 cboItemDesc.DisplayMember = "ITEMDESC";   // 눈으로 보여줄 항목
                 cboItemDesc.ValueMember = "ITEMDESC";     // 실제 데이터를 처리할 코드 항목
                 cboItemDesc.Text = "";
+
+
+                // 출시일자 원하는 날짜 픽스
+                dtpStart.Text = string.Format("{0:yyyy-MM-01}", DateTime.Now);
+
             }
             catch (Exception ex) 
             {
@@ -77,38 +82,46 @@ namespace Dev_Form
                 if (rdoEnd.Checked == true) sEndFlag = "Y"; // 단종여부
                 if (chkNameOnly.Checked == true) sItemCode = ""; // 이름으로만 검색
 
-                SqlDataAdapter adapter = new SqlDataAdapter("SELECT ITEMCODE,  " +
-                                                            "       ITEMNAME,  " +
-                                                            "       ITEMDESC,  " +
-                                                            "       ITEMDESC2, " +
-                                                            "       ENDFLAG,   " +
-                                                            "       PRODDATE,  " +
-                                                            "       MAKEDATE,  " +
-                                                            "       MAKER,     " +
-                                                            "       EDITDATE,  " +
-                                                            "       EDITOR    " +
-                                                            "       FROM TB_TESTITEM_KJW WITH(NOLOCK) " +
-                                                            "       WHERE ITEMCODE LIKE '%" + sItemCode + "%' " +
-                                                            "       AND ITEMNAME LIKE '%" + sItemName + "%' " +
-                                                            "       AND ITEMDESC LIKE '%" + sItemdesc + "%' " +
-                                                            "       AND ENDFLAG = '" + sEndFlag + "'", Connect);
+                SqlDataAdapter adapter = new SqlDataAdapter("SELECT ITEMCODE,  "  +  
+                                                            "       ITEMNAME,  "  +  
+                                                            "       ITEMDESC,  "  +  
+                                                            "       ITEMDESC2, "  +
+                                                            "       CASE WHEN ENDFLAG = 'Y' Then '단종'"             +
+                                                            "       WHEN ENDFLAG = 'N' Then '생산' END AS ENDFLAG, " +  
+                                                            "       PRODDATE,  "  +  
+                                                            "       MAKEDATE,  "  +  
+                                                            "       MAKER,     "  +  
+                                                            "       EDITDATE,  "  +  
+                                                            "       EDITOR     "  +  
+                                                            "       FROM TB_TESTITEM_KJW WITH(NOLOCK) "          +
+                                                            "       WHERE ITEMCODE LIKE '%" + sItemCode + "%' "  +
+                                                            "       AND ITEMNAME LIKE '%" + sItemName + "%' "    +
+                                                            "       AND ITEMDESC LIKE '%" + sItemdesc + "%' "    +
+                                                            "       AND ENDFLAG = '" + sEndFlag + "'"            +
+                                                            "       AND PRODDATE BETWEEN '" + sStartDate + "'AND'" + sEndDate + "'"
+                                                            , Connect);
 
                 DataTable dtTemp = new DataTable();
                 adapter.Fill(dtTemp);
 
-                if (dtTemp.Rows.Count == 0) return;
+                if (dtTemp.Rows.Count == 0)
+                {   // 조회할 데이터가 없을 때 초기화하라
+                    dgvGrid.DataSource = null;
+                    return;
+                }
+                    
                 dgvGrid.DataSource = dtTemp;    //데이터그리드 뷰에 데이터 테이블등록
 
                 // 그리드뷰의 헤더 명칭 선언 (칼럼명칭지정)
-                dgvGrid.Columns["ITEMCODE"].HeaderText = "품목 코드";
-                dgvGrid.Columns["ITEMNAME"].HeaderText = "품목 명";
-                dgvGrid.Columns["ITEMDESC"].HeaderText = "품목 상세";
+                dgvGrid.Columns["ITEMCODE"].HeaderText  = "품목 코드";
+                dgvGrid.Columns["ITEMNAME"].HeaderText  = "품목 명";
+                dgvGrid.Columns["ITEMDESC"].HeaderText  = "품목 상세";
                 dgvGrid.Columns["ITEMDESC2"].HeaderText = "품목 상세2";
-                dgvGrid.Columns["ENDFLAG"].HeaderText = "단종 여부";
-                dgvGrid.Columns["MAKEDATE"].HeaderText = "등록 일시";
-                dgvGrid.Columns["MAKER"].HeaderText = "등록자";
-                dgvGrid.Columns["EDITDATE"].HeaderText = "수정일시";
-                dgvGrid.Columns["EDITOR"].HeaderText = "수정자";
+                dgvGrid.Columns["ENDFLAG"].HeaderText   = "단종 여부";
+                dgvGrid.Columns["MAKEDATE"].HeaderText  = "등록 일시";
+                dgvGrid.Columns["MAKER"].HeaderText     = "등록자";
+                dgvGrid.Columns["EDITDATE"].HeaderText  = "수정일시";
+                dgvGrid.Columns["EDITOR"].HeaderText    = "수정자";
 
                 // 그리드뷰의 폭 지정
                 dgvGrid.Columns[0].Width = 100;
@@ -182,9 +195,80 @@ namespace Dev_Form
 
         }
 
+        // 데이터그리드뷰에서 저장버튼 누르기
         private void btnSave_Click(object sender, EventArgs e)
         {
+            // 선택된 행 데이터 저장
+            if (dgvGrid.Rows.Count == 0) return;        //-- 저장할 행이 없으면 리턴하라
+            if (MessageBox.Show("선택된 데이터를 등록 하시겠습니까?", "데이터등록", 
+                MessageBoxButtons.YesNo) == DialogResult.No) 
+                return;
 
+            string sItemCode = dgvGrid.CurrentRow.Cells["ITEMCODE"].Value.ToString();
+            string sItemName = dgvGrid.CurrentRow.Cells["ITEMNAME"].Value.ToString();
+            string sItemDesc = dgvGrid.CurrentRow.Cells["ITEMDESC"].Value.ToString();
+            string sItemDesc2 = dgvGrid.CurrentRow.Cells["ITEMDESC2"].Value.ToString();
+            string sItemEndFlag = dgvGrid.CurrentRow.Cells["ENDFLAG"].Value.ToString();
+            string sProdDate = dgvGrid.CurrentRow.Cells["PRODDATE"].Value.ToString();
+
+            SqlCommand cmd = new SqlCommand();
+            SqlTransaction Tran;
+
+            Connect = new SqlConnection(strConn);
+            Connect.Open();
+
+            // 데이터 조회 후 해당 데이터가 있는지 확인 후 UPDATE, INSERT 구문 분기
+            //string sSql = "SELECT ITEMCODE FROM TB_TESTITEM_KJW WHERE ITEMCODE = '" + sItemCode + "'";
+            //SqlDataAdapter adapter = new SqlDataAdapter(sSql, Connect);
+            //DataTable dtTemp = new DataTable();
+            //adapter.Fill(dtTemp);
+
+            // 트랜잭션 설정
+            Tran = Connect.BeginTransaction("TestTran");
+            cmd.Transaction = Tran;
+            cmd.Connection = Connect;
+
+            //두 개를 한번에 처리하는함수
+            cmd.CommandText = "UPDATE TB_TESTITEM_KJW " +
+                                      "    SET ITEMNAME = '" + sItemName + "',    " +
+                                      "        ITEMDESC = '" + sItemDesc + "',    " +
+                                      "        ITEMDESC2 = '" + sItemDesc2 + "',  " +
+                                      "        ENDFLAG = '" + "N" + "',           " +
+                                      "        PRODDATE = '" + sProdDate + "',    " +
+                                      "        EDITOR = '"    + Common.LogInId + "',  " +
+                                      "        EDITDATE = GETDATE()               " +
+                                      "  WHERE ITEMCODE = '" + sItemCode + "'     " +
+                                      " IF (@@ROWCOUNT =0) " +
+                                      "INSERT INTO TB_TESTITEM_KJW(ITEMCODE,           ITEMNAME,            ITEMDESC,           ITEMDESC2,          ENDFLAG,           PRODDATE,      MAKEDATE,     MAKER) " +
+                                      "VALUES('" + sItemCode + "','" + sItemName + "','" + sItemDesc + "','" + sItemDesc2 + "','" + "N" + "','" + sProdDate + "',GETDATE(),'" + Common.LogInId + "')";
+
+            // 데이터가 있는경우 UPDATE, 없는경우 INSERT
+            //if (dtTemp.Rows.Count == 0)
+            //{
+            //    // 데이터가 없으니 INSERT 해라
+            //    cmd.CommandText = "INSERT INTO TB_TESTITEM_KJW (ITEMCODE, ITEMNAME, ITEMDESC, ITEMDESC2, ENDFLAG, PRODDATE, MAKEDATE, MAKER) " +
+            //                      "VALUES ('" + sItemCode + "', '" + sItemName + "', '" + sItemDesc + "', '" + sItemDesc2 + "', '" + "N" + "', '" + sProdDate + "',GETDATE(),'" + "')";
+            //}
+            //else
+            //{
+            //    // 데이터가 이미있으니 UPDATE 해라
+            //    cmd.CommandText = cmd.CommandText = "UPDATE TB_TestItem_KJW                              " +
+            //                                        "    SET ITEMNAME = '" + sItemName + "',             " +
+            //                                        "        ITEMDESC = '" + sItemDesc + "',             " +
+            //                                        "        ITEMDESC2 = '" + sItemDesc2 + "',           " +
+            //                                        "        ENDFLAG = '" + "N" + "',           " +
+            //                                        "        PRODDATE = '" + sProdDate + "',             " +
+            //                                        "        EDITOR = '',  " +
+            //                                      //"        EDITOR = '"    + Commoncs.LoginUserID + "', " +
+            //                                        "        EDITDATE = GETDATE()                        " +
+            //                                        "  WHERE ITEMCODE = '" + sItemCode + "'              ";
+            //}
+            cmd.ExecuteNonQuery(); //위에작성한쿼리를 실행하라
+
+            // 성공 시 DB COMMIT
+            Tran.Commit();
+            MessageBox.Show("정상적으로 등록하였습니다.");
+            Connect.Close();
         }
     }
 }
