@@ -1,46 +1,118 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Data.SqlClient;
+using System.Windows.Forms;
 
 namespace Dev_Form
 {
-    public partial class FM_CUST : Form
+    public partial class Fm_Cust : Form
     {
-        private SqlConnection Connect = null;  // 접속정보 객체명명
-        private string strConn = "Data Source =61.105.9.203; Initial Catalog = AppDev;User ID=kfqs1;Password = 1234";
+        #region Connection Init
+        private SqlConnection Conn = null;
+        private string ConnInfo = Common.Db;
+        #endregion
 
-
-        public FM_CUST()
+        public Fm_Cust()
         {
             InitializeComponent();
         }
 
-        private void FM_CUST_Load(object sender, EventArgs e)
+        private void btnSearch_Click(object sender, EventArgs e)
         {
             try
             {
-                Connect = new SqlConnection(strConn);
-                Connect.Open();
+                #region Connection Open
+                Conn = new SqlConnection(ConnInfo);
+                Conn.Open();
 
-                if (Connect.State != System.Data.ConnectionState.Open)
+                if (Conn.State != System.Data.ConnectionState.Open)
                 {
-                    MessageBox.Show("데이터 베이스 연결에 실패하였습니다.");
+                    MessageBox.Show("Failed to connect to database.");
                     return;
                 }
-                SqlDataAdapter adapter = new SqlDataAdapter("select distinct CUSTTYPE from TB_CUST_KJW ", Connect);
-                DataTable dtTemp = new DataTable();
-                adapter.Fill(dtTemp);
+                #endregion
 
-                // 출시일자 원하는 날짜 픽스
-                dtpStartC.Text = string.Format("{0:yyyy-MM-01}", DateTime.Now);
+                #region Variable Init
+                string custCode = txtCustCode.Text;
+                string custType = "";
+                string custName = txtCustName.Text;
+                string startDate = dtpStart.Text.ToString();
+                string endDate = dtpEnd.Text.ToString();
+                string bizType = "";
 
+                // 라디오 버튼에 따른 상태값 구분
+                if (rdoCVP.Checked == true) bizType = "상용차 부품";
+                else if (rdoAVP.Checked == true) bizType = "자동차부품";
+                else if (rdoCUT.Checked == true) bizType = "절삭가공";
+                else if (rdoCSR.Checked == true) bizType = "펌프압축기";
+                else bizType = "";
+
+                if (chkCustOnly.Checked == true) custType = "C";
+                #endregion
+
+                #region Fill Data
+                SqlDataAdapter Adapter = new SqlDataAdapter("SELECT CUSTCODE, " +
+                                                                  $"CASE WHEN CUSTTYPE = 'C' THEN '고객사'" +
+                                                                  $"WHEN CUSTTYPE = 'V' THEN '협력사'" +
+                                                                   "END AS CUSTTYPE, " +
+                                                                   "CUSTNAME, " +
+                                                                   "BIZCLASS, " +
+                                                                   "BIZTYPE,  " +
+                                                                  $"CASE WHEN USEFLAG = 'Y' THEN '사용'" +
+                                                                  $"WHEN USEFLAG = 'N' THEN '미사용'" +
+                                                                   "END AS USEFLAG, " +
+                                                                   "FIRSTDATE, " +
+                                                                   "MAKEDATE, " +
+                                                                   "MAKER, " +
+                                                                   "EDITDATE, " +
+                                                                   "EDITOR " +
+                                                                   "FROM TB_CUST_KJW WITH(NOLOCK) " +
+                                                                   $"WHERE CUSTCODE LIKE '%{custCode}%' " +
+                                                                   $"AND CUSTTYPE LIKE '%{custType}%' "+
+                                                                   $"AND CUSTNAME LIKE '%{custName}%' " +
+                                                                   $"AND BIZTYPE LIKE '%{bizType}%' " +
+                                                                   $"AND FIRSTDATE BETWEEN '{startDate}' AND '{endDate}'",
+                                                                   Conn);
+                DataTable DtTemp = new DataTable();
+                Adapter.Fill(DtTemp);
+                #endregion
+
+                #region Show Data
+                if (DtTemp.Rows.Count == 0)
+                {
+                    MessageBox.Show("검색 조건에 맞는 데이터가 없습니다.");
+                    dgvGrid.DataSource = null;
+                    return;
+                }
+                dgvGrid.DataSource = DtTemp;
+                #endregion
+
+                #region Column Set
+                dgvGrid.Columns["CUSTCODE"].HeaderText = "거래처 코드";
+                dgvGrid.Columns["CUSTTYPE"].HeaderText = "거래처 타입";
+                dgvGrid.Columns["CUSTNAME"].HeaderText = "거래처명";
+                dgvGrid.Columns["BIZCLASS"].HeaderText = "업태";
+                dgvGrid.Columns["BIZTYPE"].HeaderText = "종목";
+                dgvGrid.Columns["USEFLAG"].HeaderText = "사용여부";
+                dgvGrid.Columns["FIRSTDATE"].HeaderText = "거래일자";
+                dgvGrid.Columns["MAKEDATE"].HeaderText = "등록일시";
+                dgvGrid.Columns["MAKER"].HeaderText = "등록자";
+                dgvGrid.Columns["EDITDATE"].HeaderText = "수정일시";
+                dgvGrid.Columns["EDITOR"].HeaderText = "수정자";
+
+                dgvGrid.Columns[0].Width = 100;
+                dgvGrid.Columns[1].Width = 100;
+                dgvGrid.Columns[2].Width = 200;
+                dgvGrid.Columns[3].Width = 200;
+                dgvGrid.Columns[4].Width = 100;
+
+                dgvGrid.Columns["CUSTCODE"].ReadOnly = true;
+                dgvGrid.Columns["CUSTTYPE"].ReadOnly = true;
+                dgvGrid.Columns["MAKER"].ReadOnly = true;
+                dgvGrid.Columns["MAKEDATE"].ReadOnly = true;
+                dgvGrid.Columns["EDITOR"].ReadOnly = true;
+                dgvGrid.Columns["EDITDATE"].ReadOnly = true;
+                #endregion
             }
             catch (Exception ex)
             {
@@ -48,193 +120,133 @@ namespace Dev_Form
             }
             finally
             {
-                Connect.Close();
+                Conn.Close();
             }
         }
-        // 조회 클릭 이벤트
-        private void button1_Click(object sender, EventArgs e)
+
+        private void btnAdd_Click(object sender, EventArgs e)
         {
+            if (dgvGrid.Rows.Count == 0) return;
+            DataRow Dr = ((DataTable)dgvGrid.DataSource).NewRow();
+            ((DataTable)dgvGrid.DataSource).Rows.Add(Dr);
+            dgvGrid.Columns["CUSTCODE"].ReadOnly = false;
+            dgvGrid.Columns["CUSTTYPE"].ReadOnly = false;
+
+            // 마지막에 추가된 행 선택
+            int MaxRow = dgvGrid.Rows.Count - 1;
+            dgvGrid.Rows[MaxRow].Selected = true;
+            dgvGrid.CurrentCell = dgvGrid.Rows[MaxRow].Cells[0];
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            if (dgvGrid.Rows.Count == 0) return;
+            if (MessageBox.Show("선택된 데이터를 저장하시겠습니까??", "Save", MessageBoxButtons.YesNo) == DialogResult.No) return;
+
+            #region Variable Init
+            string custCode  = dgvGrid.CurrentRow.Cells["CUSTCODE"].Value.ToString();
+            string custType  = dgvGrid.CurrentRow.Cells["CUSTTYPE"].Value.ToString();
+            string custName  = dgvGrid.CurrentRow.Cells["CUSTNAME"].Value.ToString();
+            string bizClass  = dgvGrid.CurrentRow.Cells["BIZCLASS"].Value.ToString();
+            string bizType   = dgvGrid.CurrentRow.Cells["BIZTYPE"].Value.ToString();
+            string useFlag   = dgvGrid.CurrentRow.Cells["USEFLAG"].Value.ToString();
+            string firstDate = dgvGrid.CurrentRow.Cells["FIRSTDATE"].Value.ToString();
+
+            if (custCode == "" || custType == "" || firstDate == "")
+            {
+                MessageBox.Show("'거래처 코드', '거래처 타입', '거래일자' 는 빈칸으로 남겨둘 수 없습니다.");
+                return;
+            }
+
+            if (custType == "고객사" || custType == "C") custType = "C";
+            else custType = "V";
+
+            if (useFlag == "미사용" || useFlag == "N") useFlag = "N";
+            else useFlag = "Y";
+            #endregion
+
+            #region Transaction Decl
+            SqlCommand Cmd = new SqlCommand();
+            SqlTransaction Txn;
+            #endregion
+
+            #region Connection Open
+            Conn = new SqlConnection(ConnInfo);
+            Conn.Open();
+            #endregion
+
+            #region Transaction Init
+            Txn = Conn.BeginTransaction("Test Transaction");
+            Cmd.Transaction = Txn;
+            Cmd.Connection = Conn;
+            #endregion
+
+            #region Transaction Commit
+            Cmd.CommandText = "UPDATE TB_CUST_KJW                      " +
+                             $"   SET CUSTNAME   = '{custName}',       " +
+                             $"       BIZCLASS   = '{bizClass}',       " +
+                             $"       BIZTYPE    = '{bizType}',        " +
+                             $"       USEFLAG    = '{useFlag}',        " +
+                             $"       FIRSTDATE  = '{firstDate}',      " +
+                             $"       EDITOR     = '{Common.LogInId}', " +
+                             $"       EDITDATE   = GETDATE()           " +
+                             $" WHERE CUSTCODE  =  '{custCode}',       " +
+                             $"   AND CUSTTYPE   = '{custType}'       " +
+                             " IF (@@ROWCOUNT =0)                     " +
+                             " INSERT INTO TB_CUST_KJW (CUSTCODE,     CUSTTYPE,     CUSTNAME,     BIZCLASS,     BIZTYPE,     USEFLAG,     FIRSTDATE,   MAKEDATE,   MAKER) " +
+                             $"VALUES (               '{custCode}', '{custType}', '{custName}', '{bizClass}', '{bizType}', '{useFlag}', '{firstDate}', GETDATE(), '{Common.LogInId}')";
+            Cmd.ExecuteNonQuery();
+            Txn.Commit();
+            #endregion
+
+            MessageBox.Show("성공적으로 저장하였습니다.");
+            Conn.Close();
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            if (this.dgvGrid.Rows.Count == 0) return;
+            if (MessageBox.Show("선택된 데이터를 삭제하시겠습니까?", "Delete", MessageBoxButtons.YesNo) == DialogResult.No) return;
+
+            #region Transaction Decl
+            SqlCommand Cmd = new SqlCommand();
+            SqlTransaction Txn;
+            #endregion
+
+            #region Connection Open
+            Conn = new SqlConnection(ConnInfo);
+            Conn.Open();
+            #endregion
+
+            #region Transaction Init
+            Txn = Conn.BeginTransaction("Begin Transaction");
+            Cmd.Transaction = Txn;
+            Cmd.Connection = Conn;
+            #endregion
+
             try
             {
-                Connect = new SqlConnection(strConn);
-                Connect.Open();
-                if (Connect.State != System.Data.ConnectionState.Open)
-                {
-                    MessageBox.Show("데이터 베이스 연결에 실패하였습니다.");
-                    return;
-                }
-                string cCustCode = txtcustcodeC.Text;   //거래처 코드
-                string cCustName = txtcustnameC.Text;   //거래처 명
-                string cStartDate = dtpStartC.Text;     //출시 시작일자
-                string cEndDate = dtpEndC.Text;         //출시 종료일자
+                string delCustCode = dgvGrid.CurrentRow.Cells["CUSTCODE"].Value.ToString();
 
-                string cBIZTYPE;
-                if (rbo1C.Checked == true) cBIZTYPE = "상용차 부품"; // 사용여부
-                if (rbo2C.Checked == true) cBIZTYPE = "자동차부품";  // 사용여부
-                if (rbo3C.Checked == true) cBIZTYPE = "절삭가공";    // 사용여부
-                if (rbo4C.Checked == true) cBIZTYPE = "펌프압축기";  // 사용여부
-                if (chkCustOnlyC.Checked == true) cCustCode = "%C";  // 고객사만 검색
+                #region Transaction Commit
+                Cmd.CommandText = $"DELETE TB_CUST_KJW WHERE CUSTCODE = '{delCustCode}'";
+                Cmd.ExecuteNonQuery();
+                Txn.Commit();
+                #endregion
 
-                SqlDataAdapter adapter = new SqlDataAdapter("SELECT CUSTCODE,  " +
-                                                            "       CASE WHEN CUSTTYPE = 'C' THEN '고객사'" +
-                                                            "       WHEN CUSTTYPE = 'V' Then '협력사' END AS CUSTTYPE, " +
-                                                            "       CUSTNAME,  " +
-                                                            "       BIZCLASS,  " +
-                                                            "       BIZTYPE,   " +
-                                                            "       CASE WHEN USEFLAG = 'N' THEN '미사용'" +
-                                                            "       WHEN USEFLAG = 'Y' THEN '사용' END AS USEFLAG," +
-                                                            "       FIRSTDATE, " +
-                                                            "       MAKEDATE,  " +
-                                                            "       MAKER,     " +
-                                                            "       EDITDATE,  " +
-                                                            "       EDITOR     " +
-                                                            "       FROM TB_CUST_KJW WITH(NOLOCK) "             +
-                                                            "       WHERE CUSTCODE LIKE '%" + cCustCode + "%' " +
-                                                            "       AND CUSTNAME LIKE '%" + cCustName + "%' "   +
-                                                            "       AND FIRSTDATE BETWEEN '" + cStartDate + "'AND'" + cEndDate + "'"
-                                                            , Connect);
-
-                DataTable dtTemp = new DataTable();
-                adapter.Fill(dtTemp);
-
-                if (dtTemp.Rows.Count == 0)
-                {   // 조회할 데이터가 없을 때 초기화하라
-                    dgvGridC.DataSource = null;
-                    return;
-                }
-
-                dgvGridC.DataSource = dtTemp;    //데이터그리드 뷰에 데이터 테이블등록
-
-                // 그리드뷰의 헤더 명칭 선언 (칼럼명칭지정)
-                dgvGridC.Columns["CUSTCODE"].HeaderText = "거래처 코드";
-                dgvGridC.Columns["CUSTTYPE"].HeaderText = "거래처타입";
-                dgvGridC.Columns["CUSTNAME"].HeaderText = "거래처명";
-                dgvGridC.Columns["BIZCLASS"].HeaderText = "업태";
-                dgvGridC.Columns["BIZTYPE"].HeaderText = "종목";
-                dgvGridC.Columns["USEFLAG"].HeaderText = "사용여부";
-                dgvGridC.Columns["FIRSTDATE"].HeaderText = "거래일자";
-                dgvGridC.Columns["MAKEDATE"].HeaderText = "등록일자";
-                dgvGridC.Columns["MAKER"].HeaderText = "등록자";
-                dgvGridC.Columns["EDITDATE"].HeaderText = "수정일시";
-                dgvGridC.Columns["EDITOR"].HeaderText = "수정자";
-
-                // 그리드뷰의 폭 지정
-                dgvGridC.Columns[0].Width = 100;
-                dgvGridC.Columns[1].Width = 80;
-                dgvGridC.Columns[2].Width = 200;
-                dgvGridC.Columns[3].Width = 80;
-                dgvGridC.Columns[4].Width = 150;
-
-                // 컬럼의 수정 여부를 지정한다
-                dgvGridC.Columns["CUSTCODE"].ReadOnly = true;
-                dgvGridC.Columns["CUSTTYPE"].ReadOnly = true;
-
+                MessageBox.Show("성공적으로 데이터를 삭제하였습니다.");
+                btnSearch_Click(null, null);
             }
             catch (Exception ex)
             {
-
+                Txn.Rollback();
+                MessageBox.Show(ex.ToString());
             }
             finally
             {
-                Connect.Close();
+                Conn.Close();
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            DataRow dr = ((DataTable)dgvGridC.DataSource).NewRow();
-            ((DataTable)dgvGridC.DataSource).Rows.Add(dr);
-            dgvGridC.Columns["CUSTCODE"].ReadOnly = false;
-            dgvGridC.Columns["CUSTTYPE"].ReadOnly = false;
-        }
-        private void button3_Click(object sender, EventArgs e)
-        {
-            if (this.dgvGridC.Rows.Count == 0) return;
-            if (MessageBox.Show("선택된 데이터를 삭제하시겠습니까", "데이터삭제", MessageBoxButtons.YesNo) == DialogResult.No) return;
-
-            SqlCommand cmd = new SqlCommand();
-            SqlTransaction tran;
-
-            Connect = new SqlConnection(strConn);
-            Connect.Open();  //데이터베이스에 로그인
-
-            // 트랜잭션 관리를 위한 권한 위임
-            tran = Connect.BeginTransaction("TranStart");   // 트랜잭션시작
-            cmd.Transaction = tran;
-            cmd.Connection = Connect;
-
-            try
-            {
-                string cCustcode = dgvGridC.CurrentRow.Cells["CUSTCODE"].Value.ToString();
-                cmd.CommandText = "DELETE TB_CUST_KJW WHERE CUSTCODE = '" + cCustcode + "'";
-
-                cmd.ExecuteNonQuery();      //delete실행
-
-                // 성공 시 DB Commit
-                tran.Commit();
-                MessageBox.Show("정상적으로 삭제하였습니다.");
-                button2_Click(null, null);  // 조회, 데이터삭제후 보여주려고
-            }
-            catch
-            {
-                tran.Rollback();
-                MessageBox.Show("데이터삭제에 실패하였습니다.");
-            }
-            finally
-            {
-                Connect.Close();
-            }
-        }
-        private void button4_Click(object sender, EventArgs e)
-        {
-            // 선택된 행 데이터 저장
-            if (dgvGridC.Rows.Count == 0) return;        //-- 저장할 행이 없으면 리턴하라
-            if (MessageBox.Show("선택된 데이터를 등록 하시겠습니까?", "데이터등록",
-                MessageBoxButtons.YesNo) == DialogResult.No)
-                return;
-
-            string cCustCode = dgvGridC.CurrentRow.Cells["CUSTCODE"].Value.ToString();
-            string cCustType = dgvGridC.CurrentRow.Cells["CUSTTYPE"].Value.ToString();
-            string cCustName = dgvGridC.CurrentRow.Cells["CUSTNAME"].Value.ToString();
-            string cBizClass = dgvGridC.CurrentRow.Cells["BIZCLASS"].Value.ToString();
-            string cBizType = dgvGridC.CurrentRow.Cells["BIZTYPE"].Value.ToString();
-            string cUseFlag = dgvGridC.CurrentRow.Cells["USEFLAG"].Value.ToString();
-            string cProdDate = dgvGridC.CurrentRow.Cells["FIRSTDATE"].Value.ToString();
-
-            SqlCommand cmd = new SqlCommand();
-            SqlTransaction Tran;
-
-            Connect = new SqlConnection(strConn);
-            Connect.Open();
-
-            Tran = Connect.BeginTransaction("TestTran");
-            cmd.Transaction = Tran;
-            cmd.Connection = Connect;
-
-            //두 개를 한번에 처리하는함수
-            cmd.CommandText = "UPDATE TB_CUST_KJW " +
-                                      "    SET CUSTCODE = '" + cCustCode + "',    " +
-                                      "        CUSTTYPE = '" + cCustType + "',    " +
-                                      "        CUSTNAME = '" + cCustName + "',    " +
-                                      "        BIZCLASS = '" + cBizClass + "',    " +
-                                      "        BIZTYPE = '" + cBizType + "',      " +
-                                      "        USEFLAG = '" + cUseFlag + "',      " +
-                                      "        FIRSTDATE = '" + cProdDate + "',   " +
-                                      "        EDITDATE = GETDATE()              ," +
-                                      "        EDITOR = '" + Common.LogInId + "'  " +
-                                      "  WHERE CUSTCODE = '" + cCustCode + "'     " +
-                                      " IF (@@ROWCOUNT =0) " +
-                                      "INSERT INTO TB_CUST_KJW(CUSTCODE,   CUSTTYPE,      CUSTNAME,           BIZCLASS,          BIZTYPE,           USEFLAG,      FIRSTDATE,                    EDITDATE     ,    EDITOR) " +
-                                      "VALUES('" + cCustCode + "','" + cCustType + "','" + cCustName + "','" + cBizClass + "','" + cBizType + "','" + cUseFlag + "','" + cProdDate + "',GETDATE(),'" + Common.LogInId + "')";
-
-            cmd.ExecuteNonQuery(); //위에작성한쿼리를 실행하라
-
-            // 성공 시 DB COMMIT
-            Tran.Commit();
-            MessageBox.Show("정상적으로 등록하였습니다.");
-            Connect.Close();
-        }
     }
 }
-
-   
