@@ -2,11 +2,13 @@
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Data;
-using System.Transactions;
+using _210520_WinFormApplication1;
+using System.Drawing;
+using System.IO;
 
 namespace Dev_Form
 {
-    public partial class FM_ITEM : Form
+    public partial class FM_ITEM : Form, ChildInterface
     {
         private SqlConnection Connect = null;  // 접속정보 객체명명
         // 접속 주소
@@ -15,6 +17,23 @@ namespace Dev_Form
         public FM_ITEM()
         {
             InitializeComponent();
+        }
+
+        public void Inquire()
+        {
+            btnSearch_Click(null, null);
+        }
+        public void DoNew()
+        {
+
+        }
+        public void Delete()
+        {
+
+        }
+        public void Save()
+        {
+
         }
 
         private void FM_ITEM_Load(object sender, EventArgs e)
@@ -46,7 +65,7 @@ namespace Dev_Form
 
 
                 // 출시일자 원하는 날짜 픽스
-                dtpStart.Text = string.Format("{0:yyyy-MM-01}", DateTime.Now);
+                dtpStart.Text = string.Format("{0:2019-MM-01}", DateTime.Now);
 
             }
             catch (Exception ex) 
@@ -269,6 +288,149 @@ namespace Dev_Form
             Tran.Commit();
             MessageBox.Show("정상적으로 등록하였습니다.");
             Connect.Close();
+        }
+
+        private void btnPicLoad_Click(object sender, EventArgs e)
+        {
+            string sImageFile = string.Empty;
+            //이미지 불러오기 및 저장, 파일 탐색기 호출
+
+            OpenFileDialog Dialog = new OpenFileDialog();
+            if (Dialog.ShowDialog() == DialogResult.OK )
+            {
+                sImageFile = Dialog.FileName;
+                picItemImage.Tag = Dialog.FileName;
+                // 지정된파일에서 이미지를 만들어 픽쳐박스에 넣는다
+                picItemImage.Image = Bitmap.FromFile(sImageFile);
+
+            }
+        }
+        // 픽처박스 picItemImage
+        private void picItemImage_Click(object sender, EventArgs e)
+        {
+            // 픽쳐박스 크기 최대화 및 이전 사이즈로
+            if (this.picItemImage.Dock == System.Windows.Forms.DockStyle.Fill)
+            {
+                // 이미지가 가득채워져있는 상태이면 원상태로 바꿔라
+                this.picItemImage.Dock = System.Windows.Forms.DockStyle.None;
+            }
+            else
+            {   // 이미지가 가득 채워져 있지 않으면 가득 채워라
+                this.picItemImage.Dock = System.Windows.Forms.DockStyle.None;
+                // 이미지를 가장 앞으로 가지고 온다 (다른컨트롤들보다 앞으로가져와서 보려고)
+                picItemImage.BringToFront();
+            }
+        }
+
+        // 픽처박스 이미지 저장
+        private void btnPicSave_Click(object sender, EventArgs e)
+        {
+            // 바이너리 코드는 컴퓨터가 인식할 수 있는 0과 1로 구성된 이진코드
+            // 바이트코드는 CPU가 아닌 가상머신에서 이해할 수 있는 코드
+            if (dgvGrid.Rows.Count == 0) return;
+            if (picItemImage.Image == null) return;
+            if (picItemImage.Tag.ToString() == "") return;   //
+
+            if (MessageBox.Show("선택된 이미지로 등록하시겠습니까?", "이미지등록", MessageBoxButtons.YesNo) == DialogResult.No) return;
+            Byte[] bImage = null;
+            Connect = new SqlConnection(strConn);
+            try
+            {
+                // 파일을 불러오기 위한 파일 경로 방법 지정
+                FileStream stream = new FileStream(picItemImage.Tag.ToString(), FileMode.Open, FileAccess.Read);
+                // 읽어들인 파일을 바이너리 코드로 변환
+                BinaryReader reader = new BinaryReader(stream);
+                // 만들어진 바이너리 코드 이미즈를 Byte 화 하여 저장
+                bImage = reader.ReadBytes(Convert.ToInt32(stream.Length));
+                reader.Close();
+                stream.Close();
+
+                // Sql문
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = Connect;
+                Connect.Open();
+
+                string sItemCode = dgvGrid.CurrentRow.Cells["ITEMCODE"].Value.ToString();
+                cmd.CommandText = "UPDATE TB_TESTITEM_KJW SET ITEMIMG = @IMAGE WHERE ITEMCODE = @ITEMCODE";
+                cmd.Parameters.AddWithValue("@IMAGE",    bImage);
+                cmd.Parameters.AddWithValue("@ITEMCODE", sItemCode);
+                cmd.ExecuteNonQuery();
+                Connect.Close();
+                MessageBox.Show("이미지가 등록되었습니다");
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                
+            }
+        }
+
+        private void dgvGrid_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // 선택시 해당품목 이미지 가져오기
+            string sItemCode = dgvGrid.CurrentRow.Cells["ITEMCODE"].Value.ToString();
+            Connect = new SqlConnection(strConn);
+            Connect.Open();
+            try
+            {
+                // 이미지 초기화
+                picItemImage.Image = null;
+                string sSql = "SELECT ITEMIMG FROM TB_TESTITEM_KJW WHERE ITEMCODE = '" + sItemCode + "' AND ITEMIMG IS NOT NULL";
+                SqlDataAdapter adapter = new SqlDataAdapter(sSql, Connect);
+                DataTable dtTemp = new DataTable();
+                adapter.Fill(dtTemp);
+
+                if (dtTemp.Rows.Count == 0) return;
+                byte[] bImage = null;
+                bImage = (byte[])dtTemp.Rows[0]["ITEMIMG"];  // 이미지를 바이트화한다
+                if (bImage != null)
+                {
+                    picItemImage.Image = new Bitmap(new MemoryStream(bImage));  // 메모리 스트림을 이용하여라
+                    picItemImage.BringToFront();
+                }
+
+            }
+            catch(Exception ex)
+            {
+
+            }
+            finally
+            {
+                Connect.Close();
+            }
+
+        }
+
+        // 픽처박스 이미지 삭제
+        private void btnPicDelete_Click(object sender, EventArgs e)
+        {
+            // 품목에 저장된 이미지 삭제
+            if (dgvGrid.Rows.Count == 0) return;
+            if (MessageBox.Show("선택한 이미지를 삭제하시겠습니까?", "이미지삭제", MessageBoxButtons.YesNo) == DialogResult.No) return;
+            SqlCommand cmd = new SqlCommand();
+            Connect = new SqlConnection(strConn);
+            Connect.Open();
+
+            try
+            {
+                string sItemCode = dgvGrid.CurrentRow.Cells["ITEMCODE"].Value.ToString();
+                cmd.CommandText = "UPDATE TB_TESTITEM_KJW SET ITEMIMG = null WHERE ITEMCODE = '" + sItemCode + "'";
+                cmd.Connection = Connect;
+                cmd.ExecuteNonQuery();
+                picItemImage.Image = null;
+                MessageBox.Show("정상적으로 삭제하였습니다.");
+            }
+            catch(Exception ex)
+            {
+
+            }
+            finally
+            {
+                Connect.Close();
+            }
         }
     }
 }

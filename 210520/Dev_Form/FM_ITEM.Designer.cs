@@ -52,7 +52,7 @@ namespace Dev_Form
             this.btnAdd = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.btnPicDelete = new System.Windows.Forms.Button();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.picItemImage = new System.Windows.Forms.PictureBox();
             this.btnPicSave = new System.Windows.Forms.Button();
             this.btnPicLoad = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
@@ -60,7 +60,7 @@ namespace Dev_Form
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGrid)).BeginInit();
             this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picItemImage)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -252,6 +252,7 @@ namespace Dev_Form
             this.dgvGrid.RowTemplate.Height = 29;
             this.dgvGrid.Size = new System.Drawing.Size(1038, 203);
             this.dgvGrid.TabIndex = 18;
+            this.dgvGrid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvGrid_CellClick);
             // 
             // btnDelete
             // 
@@ -286,7 +287,7 @@ namespace Dev_Form
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.btnPicDelete);
-            this.groupBox4.Controls.Add(this.pictureBox1);
+            this.groupBox4.Controls.Add(this.picItemImage);
             this.groupBox4.Controls.Add(this.btnPicSave);
             this.groupBox4.Controls.Add(this.btnPicLoad);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -299,38 +300,44 @@ namespace Dev_Form
             // 
             // btnPicDelete
             // 
-            this.btnPicDelete.Location = new System.Drawing.Point(299, 207);
+            this.btnPicDelete.Location = new System.Drawing.Point(450, 207);
             this.btnPicDelete.Name = "btnPicDelete";
-            this.btnPicDelete.Size = new System.Drawing.Size(94, 29);
+            this.btnPicDelete.Size = new System.Drawing.Size(121, 29);
             this.btnPicDelete.TabIndex = 21;
             this.btnPicDelete.Text = "삭제";
             this.btnPicDelete.UseVisualStyleBackColor = true;
+            this.btnPicDelete.Click += new System.EventHandler(this.btnPicDelete_Click);
             // 
-            // pictureBox1
+            // picItemImage
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(12, 26);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(381, 175);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
+            this.picItemImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picItemImage.Location = new System.Drawing.Point(12, 26);
+            this.picItemImage.Name = "picItemImage";
+            this.picItemImage.Size = new System.Drawing.Size(559, 175);
+            this.picItemImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picItemImage.TabIndex = 0;
+            this.picItemImage.TabStop = false;
+            this.picItemImage.Click += new System.EventHandler(this.picItemImage_Click);
             // 
             // btnPicSave
             // 
-            this.btnPicSave.Location = new System.Drawing.Point(190, 207);
+            this.btnPicSave.Location = new System.Drawing.Point(313, 207);
             this.btnPicSave.Name = "btnPicSave";
-            this.btnPicSave.Size = new System.Drawing.Size(94, 29);
+            this.btnPicSave.Size = new System.Drawing.Size(114, 29);
             this.btnPicSave.TabIndex = 20;
             this.btnPicSave.Text = "저장";
             this.btnPicSave.UseVisualStyleBackColor = true;
+            this.btnPicSave.Click += new System.EventHandler(this.btnPicSave_Click);
             // 
             // btnPicLoad
             // 
             this.btnPicLoad.Location = new System.Drawing.Point(12, 207);
             this.btnPicLoad.Name = "btnPicLoad";
-            this.btnPicLoad.Size = new System.Drawing.Size(163, 29);
+            this.btnPicLoad.Size = new System.Drawing.Size(274, 29);
             this.btnPicLoad.TabIndex = 19;
             this.btnPicLoad.Text = "이미지 불러오기";
             this.btnPicLoad.UseVisualStyleBackColor = true;
+            this.btnPicLoad.Click += new System.EventHandler(this.btnPicLoad_Click);
             // 
             // FM_ITEM
             // 
@@ -352,7 +359,7 @@ namespace Dev_Form
             this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvGrid)).EndInit();
             this.groupBox4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picItemImage)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -382,7 +389,7 @@ namespace Dev_Form
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Button btnPicDelete;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox picItemImage;
         private System.Windows.Forms.Button btnPicSave;
         private System.Windows.Forms.Button btnPicLoad;
     }

@@ -47,8 +47,8 @@ namespace _210520_WinFormApplication1
             {
                 MessageBox.Show("반갑습니다 ^^.");
                 this.Close();
-                Dev_Form.Common.LogInId = txtID.Text;
-                Dev_Form.Common.LogInName = DtTemp2.Rows[0]["USERNAME"].ToString();  // 유저 명을 Common에 등록함
+                Common.LogInId = txtID.Text;
+                Common.LogInName = DtTemp2.Rows[0]["USERNAME"].ToString();  // 유저 명을 Common에 등록함
                 this.Tag = DtTemp2.Rows[0]["USERNAME"].ToString(); // 유저네임 
                 this.Close();
                 return;

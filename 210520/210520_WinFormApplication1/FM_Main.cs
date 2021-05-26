@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dev_Form;
 
@@ -42,10 +35,7 @@ namespace _210520_WinFormApplication1
 
         }
 
-        private void stbExit_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
+
         private void stbClose_Click(object sender, EventArgs e)
         {
             // 열려있는 화면이 있는지 확인
@@ -54,6 +44,35 @@ namespace _210520_WinFormApplication1
             myTabControl1.SelectedTab.Dispose();
         }
 
+
+        // 조회 버튼 이벤트 추가
+        private void stbSearch_Click(object sender, EventArgs e)
+        {
+            ChildCommand("SEARCH");
+        }
+        // 추가 버튼 이벤트 추가
+        private void stbInsert_Click(object sender, EventArgs e)
+        {
+            ChildCommand("NEW");
+        }
+        // 제거 버튼 이벤트 추가
+        private void stbDelete_Click(object sender, EventArgs e)
+        {
+            ChildCommand("DELETE");
+        }
+        // 저장 버튼 이벤트 추가
+        private void stbSave_Click(object sender, EventArgs e)
+        {
+            ChildCommand("SAVE");
+        }
+        // 종료 버튼 이벤트 추가
+        private void stbExit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+
+        // 타이머 툴바 시간
         private void timer1_Tick(object sender, EventArgs e)
         {
             tssNowDate.Text = DateTime.Now.ToString();
@@ -94,7 +113,22 @@ namespace _210520_WinFormApplication1
             //ShowForm.Show();
             myTabControl1.AddForm(ShowForm);    // 탭페이지에 폼을 추가하여 오픈한다
         }
+
+        //  Child인터페이스 브릿지
+        private void ChildCommand(string Command)
+        {
+            if (this.myTabControl1.TabPages.Count == 0) return;
+            var Child = myTabControl1.SelectedTab.Controls[0] as Dev_Form.ChildInterface;
+            switch (Command)
+            {
+                case "NEW"   : Child.DoNew();    break;
+                case "SAVE"  : Child.Save();     break;
+                case "SEARCH": Child.Inquire();  break;
+                case "DELETE": Child.Delete();   break;
+            }
+        }
     }
+
     // 도구상자에 나만의 사용자정의 탭컨트롤을 만든다
     public partial class MDIForm : TabPage
     {

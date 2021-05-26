@@ -84,31 +84,31 @@ namespace _210520_WinFormApplication1
             // MDI_TEST
             // 
             this.MDI_TEST.Name = "MDI_TEST";
-            this.MDI_TEST.Size = new System.Drawing.Size(224, 26);
+            this.MDI_TEST.Size = new System.Drawing.Size(189, 26);
             this.MDI_TEST.Text = "테스트 화면";
             // 
             // MDI_TEST2
             // 
             this.MDI_TEST2.Name = "MDI_TEST2";
-            this.MDI_TEST2.Size = new System.Drawing.Size(224, 26);
+            this.MDI_TEST2.Size = new System.Drawing.Size(189, 26);
             this.MDI_TEST2.Text = "테스트 화면2";
             // 
             // FM_ITEM
             // 
             this.FM_ITEM.Name = "FM_ITEM";
-            this.FM_ITEM.Size = new System.Drawing.Size(224, 26);
+            this.FM_ITEM.Size = new System.Drawing.Size(189, 26);
             this.FM_ITEM.Text = "품목관리";
             // 
             // Fm_Cust
             // 
             this.Fm_Cust.Name = "Fm_Cust";
-            this.Fm_Cust.Size = new System.Drawing.Size(224, 26);
+            this.Fm_Cust.Size = new System.Drawing.Size(189, 26);
             this.Fm_Cust.Text = "FM_CUST_HYT";
             // 
             // FM_CUST_JW
             // 
             this.FM_CUST_JW.Name = "FM_CUST_JW";
-            this.FM_CUST_JW.Size = new System.Drawing.Size(224, 26);
+            this.FM_CUST_JW.Size = new System.Drawing.Size(189, 26);
             this.FM_CUST_JW.Text = "FM_CUST종우";
             // 
             // toolStrip
@@ -139,6 +139,7 @@ namespace _210520_WinFormApplication1
             this.stbSearch.Text = "조회";
             this.stbSearch.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.stbSearch.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.stbSearch.Click += new System.EventHandler(this.stbSearch_Click);
             // 
             // stbInsert
             // 
@@ -150,6 +151,7 @@ namespace _210520_WinFormApplication1
             this.stbInsert.Text = "추가";
             this.stbInsert.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.stbInsert.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.stbInsert.Click += new System.EventHandler(this.stbInsert_Click);
             // 
             // stbDelete
             // 
@@ -161,6 +163,7 @@ namespace _210520_WinFormApplication1
             this.stbDelete.Text = "제거";
             this.stbDelete.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.stbDelete.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.stbDelete.Click += new System.EventHandler(this.stbDelete_Click);
             // 
             // stbSave
             // 
@@ -172,6 +175,7 @@ namespace _210520_WinFormApplication1
             this.stbSave.Text = "저장";
             this.stbSave.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.stbSave.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.stbSave.Click += new System.EventHandler(this.stbSave_Click);
             // 
             // toolStripSeparator1
             // 
