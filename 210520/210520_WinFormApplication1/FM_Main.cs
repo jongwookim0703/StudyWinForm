@@ -22,7 +22,7 @@ namespace _210520_WinFormApplication1
             }
 
             // 메뉴 클릭 이벤트 추가
-            // M시스템에서 드롭다운을 눌렀을 때           new 이내용으로 실행해라
+            // M시스템에서 드롭다운을 눌렀을 때           new 이 내용으로 실행해라
             this.M_SYSTEM.DropDownItemClicked +=
                 new System.Windows.Forms.ToolStripItemClickedEventHandler(this.M_SYSTEM_DropDownItemClicked);
 

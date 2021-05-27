@@ -51,6 +51,7 @@ namespace _210520_WinFormApplication1
             this.tssNowDate = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.myTabControl1 = new _210520_WinFormApplication1.MyTabControl();
+            this.FM_User = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -74,7 +75,8 @@ namespace _210520_WinFormApplication1
             this.MDI_TEST2,
             this.FM_ITEM,
             this.Fm_Cust,
-            this.FM_CUST_JW});
+            this.FM_CUST_JW,
+            this.FM_User});
             this.M_SYSTEM.Name = "M_SYSTEM";
             this.M_SYSTEM.Size = new System.Drawing.Size(103, 24);
             this.M_SYSTEM.Text = "시스템 관리";
@@ -84,31 +86,31 @@ namespace _210520_WinFormApplication1
             // MDI_TEST
             // 
             this.MDI_TEST.Name = "MDI_TEST";
-            this.MDI_TEST.Size = new System.Drawing.Size(189, 26);
+            this.MDI_TEST.Size = new System.Drawing.Size(224, 26);
             this.MDI_TEST.Text = "테스트 화면";
             // 
             // MDI_TEST2
             // 
             this.MDI_TEST2.Name = "MDI_TEST2";
-            this.MDI_TEST2.Size = new System.Drawing.Size(189, 26);
+            this.MDI_TEST2.Size = new System.Drawing.Size(224, 26);
             this.MDI_TEST2.Text = "테스트 화면2";
             // 
             // FM_ITEM
             // 
             this.FM_ITEM.Name = "FM_ITEM";
-            this.FM_ITEM.Size = new System.Drawing.Size(189, 26);
+            this.FM_ITEM.Size = new System.Drawing.Size(224, 26);
             this.FM_ITEM.Text = "품목관리";
             // 
             // Fm_Cust
             // 
             this.Fm_Cust.Name = "Fm_Cust";
-            this.Fm_Cust.Size = new System.Drawing.Size(189, 26);
+            this.Fm_Cust.Size = new System.Drawing.Size(224, 26);
             this.Fm_Cust.Text = "FM_CUST_HYT";
             // 
             // FM_CUST_JW
             // 
             this.FM_CUST_JW.Name = "FM_CUST_JW";
-            this.FM_CUST_JW.Size = new System.Drawing.Size(189, 26);
+            this.FM_CUST_JW.Size = new System.Drawing.Size(224, 26);
             this.FM_CUST_JW.Text = "FM_CUST종우";
             // 
             // toolStrip
@@ -254,6 +256,12 @@ namespace _210520_WinFormApplication1
             this.myTabControl1.Size = new System.Drawing.Size(815, 315);
             this.myTabControl1.TabIndex = 4;
             // 
+            // FM_User
+            // 
+            this.FM_User.Name = "FM_User";
+            this.FM_User.Size = new System.Drawing.Size(224, 26);
+            this.FM_User.Text = "사용자 관리";
+            // 
             // FM_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -302,5 +310,6 @@ namespace _210520_WinFormApplication1
         private System.Windows.Forms.ToolStripMenuItem FM_ITEM;
         private System.Windows.Forms.ToolStripMenuItem Fm_Cust;
         private System.Windows.Forms.ToolStripMenuItem FM_CUST_JW;
+        private System.Windows.Forms.ToolStripMenuItem FM_User;
     }
 }

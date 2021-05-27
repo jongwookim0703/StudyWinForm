@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using System.Data;
 using System.Data.SqlClient;
+using Dev_Form;
 
 namespace _210520_WinFormApplication1
 {
@@ -31,7 +32,7 @@ namespace _210520_WinFormApplication1
 
         private void btnLogin_Click(object sender, EventArgs e)
         {   // 1. 데이터베이스 접속경로 설정
-            string strCon = "Data Source =61.105.9.203; Initial Catalog = AppDev;User ID=kfqs1;Password = 1234";
+            string strCon = "Data Source =222.235.141.8; Initial Catalog = AppDev;User ID=kfqs1;Password = 1234";
             Connect = new SqlConnection(strCon);
             // 2. 데이터베이스 연결상태확인
             Connect.Open();

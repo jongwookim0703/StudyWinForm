@@ -2,14 +2,14 @@
 using System.Data;
 using System.Windows.Forms;
 using System.Data.SqlClient;
-using _210520_WinFormApplication1;
+
 
 namespace Dev_Form
 {
     public partial class FM_CUST_JW : Form
     {
         private SqlConnection Connect = null;  // 접속정보 객체명명
-        private string strConn = "Data Source =61.105.9.203; Initial Catalog = AppDev;User ID=kfqs1;Password = 1234";
+        private string strConn = "Data Source =222.235.141.8; Initial Catalog = AppDev;User ID=kfqs1;Password = 1234";
 
 
         public FM_CUST_JW()

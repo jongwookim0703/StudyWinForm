@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Windows.Forms;
-using _210520_WinFormApplication1;
+
 
 namespace Dev_Form
 {
@@ -10,7 +10,7 @@ namespace Dev_Form
     {
         #region Connection Init
         private SqlConnection Conn = null;
-        private string ConnInfo = Common.Db;
+        private string ConnInfo = Common.DbPath;
         #endregion
 
         public Fm_Cust()
