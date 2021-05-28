@@ -35,7 +35,6 @@ namespace _210520_WinFormApplication1
 
         }
 
-
         private void stbClose_Click(object sender, EventArgs e)
         {
             // 열려있는 화면이 있는지 확인

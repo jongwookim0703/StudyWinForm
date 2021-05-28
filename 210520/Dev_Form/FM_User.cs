@@ -52,11 +52,106 @@ namespace Dev_Form
         }
         public override void Delete()
         {
+            // 기존 방법
+            //base.Delete();
+            //if (dataGridView1.Rows.Count == 0) return;
+            //int iSelectIndex = dataGridView1.CurrentCell.RowIndex;
+            //DataTable dtTemp = (DataTable)dataGridView1.DataSource;
+            //dtTemp.Rows[iSelectIndex].Delete();
+
+            //2번 방법
             base.Delete();
             if (dataGridView1.Rows.Count == 0) return;
-            int iSelectIndex = dataGridView1.CurrentCell.RowIndex;
+
+            string sUserID = dataGridView1.CurrentRow.Cells["USERID"].Value.ToString();
             DataTable dtTemp = (DataTable)dataGridView1.DataSource;
-            dtTemp.Rows[iSelectIndex].Delete();
+            for (int i = 0; i < dtTemp.Rows.Count; i++)
+            {
+                if (dtTemp.Rows[i].RowState == DataRowState.Deleted) continue;
+                if (dtTemp.Rows[i][0].ToString() == sUserID)
+                {
+                    dtTemp.Rows[i].Delete();
+                    break;
+                }
+            }
+
+        }
+        public override void Save()
+        {
+            base.Save();
+            string UserID = string.Empty;
+            string sUserName = string.Empty;
+            string sPassword = string.Empty;
+
+            DataTable dtTemp = ((DataTable)dataGridView1.DataSource).GetChanges();
+            if (dtTemp == null) return;
+
+            if (MessageBox.Show("데이터를 등록 하시겠습니까?", "데이터 저장",
+               MessageBoxButtons.YesNo) == DialogResult.No) return;
+            DBHelper helper = new DBHelper(true);
+            try
+            {
+                //트랜잭션 설정
+                //데이터 테이블의 상태 체크
+                foreach (DataRow drRow in dtTemp.Rows)
+                {
+                    switch (drRow.RowState)
+                    {
+                        case DataRowState.Deleted:
+                            drRow.RejectChanges();
+                            UserID = drRow["USERID"].ToString();
+                            helper.ExecuteNoneQuery("SP_USER_KJW_D1",
+                                                     CommandType.StoredProcedure
+                                                     , helper.CreateParameter("USERID", UserID));
+                            break;
+                        case DataRowState.Added:
+                            #region 추가
+                            UserID = drRow["USERID"].ToString();
+                            sUserName = drRow["USERNAME"].ToString();
+                            sPassword = drRow["PW"].ToString();
+                            helper.ExecuteNoneQuery("SP_USER_KJW_I1", CommandType.StoredProcedure
+                                                     , helper.CreateParameter("USERID", UserID)
+                                                     , helper.CreateParameter("USERNAME", sUserName)
+                                                     , helper.CreateParameter("PASSWORD", sPassword)
+                                                     , helper.CreateParameter("MAKER", Common.LogInId)
+                                                     );
+                            #endregion
+                            break;
+                        case DataRowState.Modified:
+                            #region 수정
+                            UserID = drRow["USERID"].ToString();
+                            sUserName = drRow["USERNAME"].ToString();
+                            sPassword = drRow["PW"].ToString();
+                            helper.ExecuteNoneQuery("SP_USER_KJW_U1", CommandType.StoredProcedure
+                                                     , helper.CreateParameter("USERID", UserID)
+                                                     , helper.CreateParameter("USERNAME", sUserName)
+                                                     , helper.CreateParameter("PASSWORD", sPassword)
+                                                     , helper.CreateParameter("MAKER", Common.LogInId)
+                                                     );
+                            #endregion
+                            break;
+                    }
+                }
+                // 성공시 DB COMMIT
+                helper.Commit();
+                //메세지
+                MessageBox.Show("정상적으로 등록하였습니다.");
+
+                //재조회
+                Inquire();
+            }
+            catch (Exception ex)
+            {
+                // 트랜잭션 롤백
+                helper.Rollback();
+                // 메세지
+                MessageBox.Show("데이터 등록에 실패 하였습니다.");
+            }
+            finally
+            {
+                // DB CLOSE
+                helper.Close();
+            }
         }
     }
 }
